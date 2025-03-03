@@ -34,11 +34,33 @@ export const GET = async (request: Request) => {
 export const POST = async (request: Request) => {
     try {
         
-        const body = await request.json();
-        await connect();
-        
-        const user = await User.findById(body.userId);
+      const {searchParams} = new URL(request.url);
+      const userId = searchParams.get("userId");;
+
+      const {title} = await request.json();
+
+    
+    await connect();
+
+    const user = await User.findById(userId);
+    
+    if(!userId || !Types.ObjectId.isValid(userId)){
+        return new NextResponse(JSON.stringify({message: "Invalid ID or missing User ID"}), {status: 400});
+    }
+    const newCategory = new Category(
+        {
+            title, 
+            user: new Types.ObjectId(userId),
+        }
+    );
+    await newCategory.save();
+
+    return new NextResponse(JSON.stringify({message: "Category is created", category: newCategory}),
+     {status: 200});
+     
     } catch (error: any) {
-        
+      return new NextResponse("Error in creating category" + error.message, 
+        {status: 500,}
+      )  
     }
 }
