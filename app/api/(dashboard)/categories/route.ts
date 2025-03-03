@@ -71,10 +71,44 @@ export const POST = async (request: Request) => {
     }
 }
 
-export const PATCH = async (request: Request){
+export const PATCH = async (request: Request) =>{
     try {
         
-    } catch (error: any) {
+        const body = await request.json();
+        const {categoryId, newTitle} = body;
         
-    }
+    
+        if(!categoryId || !newTitle) {
+            return new NextResponse(JSON.stringify({message: "ID or new title not found."}), {status: 400});
+        }
+
+        if(!Types.ObjectId.isValid(categoryId)) {
+            return new NextResponse(JSON.stringify({message: "Invalid ID."}), {status: 400});
+        }
+       
+        await connect();
+
+        const updatedCategory = await Category.findOneAndUpdate(
+            {
+                _id: new ObjectId(categoryId)
+            },
+            {
+                title: newTitle,
+            },
+            { new: true }
+        
+        );
+        if (!updatedCategory) {
+            return new NextResponse(JSON.stringify({ message: "Category not found." }), { status: 404 });
+        }
+        
+        return new NextResponse(JSON.stringify({message: "User updated successfully", title: updatedCategory}), {status: 200});
+    } catch (error: any) {
+        return new NextResponse("Error in creating category" + error.message, 
+          {status: 500,}
+        )  
+      }
 }
+
+
+
