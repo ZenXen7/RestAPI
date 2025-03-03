@@ -40,12 +40,18 @@ export const POST = async (request: Request) => {
       const {title} = await request.json();
 
     
-    await connect();
+  
 
-    const user = await User.findById(userId);
+   
     
     if(!userId || !Types.ObjectId.isValid(userId)){
         return new NextResponse(JSON.stringify({message: "Invalid ID or missing User ID"}), {status: 400});
+    }
+    await connect();
+    const user = await User.findById(userId);
+
+    if(!user) {
+        return new NextResponse(JSON.stringify({message: "User not found"}), {status: 404});
     }
     const newCategory = new Category(
         {
@@ -62,5 +68,13 @@ export const POST = async (request: Request) => {
       return new NextResponse("Error in creating category" + error.message, 
         {status: 500,}
       )  
+    }
+}
+
+export const PATCH = async (request: Request){
+    try {
+        
+    } catch (error: any) {
+        
     }
 }
